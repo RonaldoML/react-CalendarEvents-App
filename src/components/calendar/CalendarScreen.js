@@ -8,31 +8,35 @@ import { NavBar } from '../ui/NavBar';
 import { messages } from '../../helpers/calendar-messages';
 import { CalendarEvent } from './CalendarEvent';
 import { CalendarModal } from './CalendarModal';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { uiOpenModal } from '../../actions/ui';
-import { eventSetActive } from '../../actions/events';
+import { eventSetActive, eventSetInactive } from '../../actions/events';
 import { AddNewFab } from '../ui/AddNewFab';
+import { DeleteEventFab } from '../ui/DeleteEventFab';
 
 moment.locale('es');
 // Setup the localizer by providing the moment (or globalize) Object
 // to the correct localizer.
 const localizer = momentLocalizer(moment) // or globalizeLocalizer
 
-const events = [{
-    title: 'Cumpleaños',
-    start: moment().toDate(),
-    end: moment().add(2, 'hours').toDate(),
-    bgcolor: '#fafafa',
-    notes: 'Comprar el pastel',
-    user: {
-        _id: '123',
-        name: 'Ron'
-    }
-}]
+// const events = [{
+//     title: 'Cumpleaños',
+//     start: moment().toDate(),
+//     end: moment().add(2, 'hours').toDate(),
+//     bgcolor: '#fafafa',
+//     notes: 'Comprar el pastel',
+//     user: {
+//         _id: '123',
+//         name: 'Ron'
+//     }
+// }]
 
 export const CalendarScreen = () => {
 
     const dispatch = useDispatch();
+
+    //TODO: leer los eventos desde el store
+    const {events, activeEvent} = useSelector(state => state.calendar)
 
     const [lasView, setLastView] = useState( localStorage.getItem('lastView') || 'month' );
 
@@ -43,14 +47,26 @@ export const CalendarScreen = () => {
     }
 
     const onSelectEvent = (e) => {
-        console.log(e);
-        dispatch( eventSetActive(e) );
-        dispatch( uiOpenModal() );
+        if (activeEvent) {
+            dispatch( eventSetInactive() );
+        } else {
+            
+            dispatch( eventSetActive(e) );
+        }
+        // dispatch( uiOpenModal() );
     }
 
     const onViewChange = (e) => {
         setLastView(e);
         localStorage.setItem('lastView', e);
+    }
+
+    const onSelectSlot = (e) => {
+
+        dispatch( eventSetInactive() );
+
+        dispatch( uiOpenModal());
+
     }
 
     const eventStyleGetter = (event, start, end, isSelected) => {
@@ -82,15 +98,23 @@ export const CalendarScreen = () => {
                 onDoubleClickEvent={onDoubleClick}
                 onSelectEvent={onSelectEvent}
                 onView={onViewChange}
+                onSelectSlot={ onSelectSlot }
+                selectable={true}
                 view={lasView}
                 components={{
                     event: CalendarEvent
                 }}
             />
+            <CalendarModal/>
 
             <AddNewFab/>
 
-            <CalendarModal/>
+            {
+                activeEvent &&
+                <DeleteEventFab/>
+            }
+            
+
 
 
 
