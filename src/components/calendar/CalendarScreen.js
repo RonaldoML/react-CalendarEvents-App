@@ -115,9 +115,6 @@ export const CalendarScreen = () => {
             }
             
 
-
-
-
         </div>
     )
 }
