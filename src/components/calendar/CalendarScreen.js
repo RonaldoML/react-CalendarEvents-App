@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment';
 import 'moment/locale/es';
@@ -10,7 +10,7 @@ import { CalendarEvent } from './CalendarEvent';
 import { CalendarModal } from './CalendarModal';
 import { useDispatch, useSelector } from 'react-redux';
 import { uiOpenModal } from '../../actions/ui';
-import { eventSetActive, eventSetInactive } from '../../actions/events';
+import { eventSetActive, eventSetInactive, eventStartLoading } from '../../actions/events';
 import { AddNewFab } from '../ui/AddNewFab';
 import { DeleteEventFab } from '../ui/DeleteEventFab';
 
@@ -35,24 +35,29 @@ export const CalendarScreen = () => {
 
     const dispatch = useDispatch();
 
+    const { uid } = useSelector(state => state.auth)
+
     //TODO: leer los eventos desde el store
     const {events, activeEvent} = useSelector(state => state.calendar)
 
     const [lasView, setLastView] = useState( localStorage.getItem('lastView') || 'month' );
 
+    useEffect(() => {
+        dispatch(eventStartLoading());
 
+    }, [dispatch])
 
     const onDoubleClick = (e) => {
         dispatch( uiOpenModal() );
     }
 
     const onSelectEvent = (e) => {
-        if (activeEvent) {
-            dispatch( eventSetInactive() );
-        } else {
+        // if (activeEvent) {
+        //     dispatch( eventSetInactive() );
+        // } else {
             
             dispatch( eventSetActive(e) );
-        }
+        //}
         // dispatch( uiOpenModal() );
     }
 
@@ -65,14 +70,16 @@ export const CalendarScreen = () => {
 
         dispatch( eventSetInactive() );
 
-        dispatch( uiOpenModal());
+        //dispatch( uiOpenModal());
 
     }
 
     const eventStyleGetter = (event, start, end, isSelected) => {
 
+
+
         const style = {
-            backgroundColor: '#367CF7',
+            backgroundColor: ( uid === event.user._id ) ? '#367CF7' : '#323232',
             borderRadius: '0px',
             opacity: 0.8,
             display: 'block',

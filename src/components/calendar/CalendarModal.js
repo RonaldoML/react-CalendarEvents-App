@@ -5,7 +5,7 @@ import Modal from 'react-modal';
 import Swal from 'sweetalert2';
 import { useDispatch, useSelector } from 'react-redux';
 import { uiCloseModal } from '../../actions/ui';
-import { eventAddNew, eventSetInactive, eventUpdated } from '../../actions/events';
+import { eventSetInactive, eventStartAddNew, eventStartUpdated } from '../../actions/events';
 import { useEffect } from 'react';
 
 
@@ -46,18 +46,18 @@ export const CalendarModal = () => {
 
     const [titleValid, setTitleValid] = useState(true)
 
-    const [formValues, setFormValues] = useState( initEvent );
+    const [formValues, setFormValues] = useState(initEvent);
 
     const { title, notes, start, end } = formValues;
 
     useEffect(() => {
-        if(activeEvent){
+        if (activeEvent) {
             setFormValues(activeEvent);
-        }else{
+        } else {
             setFormValues(initEvent);
         }
         return () => {
-            
+
         }
     }, [activeEvent, setFormValues])
 
@@ -66,10 +66,7 @@ export const CalendarModal = () => {
         setFormValues({
             ...formValues,
             [target.name]: target.value,
-            user: {
-                _id: 123,
-                name: 'Ronaldo'
-            }
+
         });
 
     }
@@ -116,14 +113,12 @@ export const CalendarModal = () => {
         //TODO: realizar la grabación en DB
         if (activeEvent) {
 
-            dispatch(eventUpdated(formValues));
+            dispatch(eventStartUpdated(formValues));
 
         } else {
-            
-            dispatch(eventAddNew({
-                ...formValues,
-                id: new Date().getTime()
-            }))
+
+            console.log({...formValues})
+            dispatch(eventStartAddNew( formValues ) );
 
         }
 
@@ -142,7 +137,7 @@ export const CalendarModal = () => {
             overlayClassName="modal-fondo"
         >
 
-            <h1> { activeEvent ? 'Editar Evento' : 'Crear Evento' }</h1>
+            <h1> {activeEvent ? 'Editar Evento' : 'Crear Evento'}</h1>
             <hr />
             <form
                 className="container"
@@ -196,7 +191,7 @@ export const CalendarModal = () => {
                     <small id="emailHelp" className="form-text text-muted">Información adicional</small>
                 </div>
 
-                
+
                 {/* <div className="d-grid gap-2"> */}
                 <button
                     type="submit"
